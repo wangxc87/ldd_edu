@@ -1,0 +1,7 @@
+1、 cdev
+cdev_alloc()和cdev_del()为一对函数
+cdev_init()该函数仅在字符设备为静态结构体时使用
+
+2、ioremap（）
+判断错误if(!ioremap())
+
