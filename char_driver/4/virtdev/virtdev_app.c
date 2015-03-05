@@ -3,13 +3,20 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define TEST_IOCTL_CMD 0
 #define WAKEUP_COMPLETION_CMD 1
 
+/*接收到异步读信号后的动作*/
+void input_handler(int signum)
+{
+  printf("receive a signal from globalfifo,signalnum:%d\n",signum);
+}
+
 int main(int argc, char *argv[])
 {
-    int fd;
+    int fd, oflags;
     int ret;
     char dev_name[64];
     if(argc < 2){
@@ -25,6 +32,13 @@ int main(int argc, char *argv[])
         fprintf(stderr,"Open %s Error.\n", dev_name);
         return -1;
     }
+
+    //启动信号驱动机制
+    signal(SIGIO, input_handler); //让input_handler()处理SIGIO信号
+    fcntl(fd, F_SETOWN, getpid());
+    oflags = fcntl(fd, F_GETFL);
+    fcntl(fd, F_SETFL, oflags | FASYNC);
+
 
  input0:
     printf("Press 'y' to wakeup completion\n");
