@@ -1,6 +1,6 @@
 MINI2440_DIR =/home/wxc/mini
 
-# include $(MINI2440_DIR)/env.mk
+include $(MINI2440_DIR)/env.mk
 
 ROOTFS_DIR =$(MINI2440_DIR)/rootfs_qtopia_qt4
 
@@ -21,9 +21,9 @@ CROSS_COMPILE = arm-linux-
 export ARCH
 export CROSS_COMPILE
 
-MODULE_DEV :=buttons
+MODULE_DEV :=timer
 
-obj-m := $(MODULE_DEV)_tsklet.o
+obj-m := $(MODULE_DEV).o
 #module-objs := $(MODULE_DEV).o
 PWD :=$(shell pwd)
 
@@ -40,7 +40,7 @@ app:
 	$(CC) $(APP).c -o $(APP) $(CC_CFLAGS)
 
 install:
-	cp $(APP) *.ko  $(EXE_DIR)
+	cp  *.ko  $(EXE_DIR)
 
 clean:
 	rm -f *.o *.ko *.order *mod.c *.symve* *_app

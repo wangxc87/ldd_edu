@@ -5,6 +5,7 @@
 #include <linux/interrupt.h>
 #include <mach/regs-gpio.h>
 #include <linux/miscdevice.h>
+#include <linux/gpio.h>
 
 #define DEVICE_NAME     "buttons"
 
@@ -26,22 +27,33 @@ static struct button_irq_desc button_irqs [] = {
 };
 static volatile char key_values [] = {'0', '0', '0', '0', '0', '0'};
 
+static unsigned int irq_pin;
 //定义实际的底半部调用函数
 void buttons_do_tasklet(unsigned long arg);
-DECLARE_TASKLET(buttons_tasklet, buttons_do_tasklet, 0);
+DECLARE_TASKLET(buttons_tasklet, buttons_do_tasklet, (unsigned long)&irq_pin);
 
 static irqreturn_t buttons_interrupt(int irq, void *dev_id)
 {
     struct button_irq_desc *button_irqs = (struct button_irq_desc *)dev_id;
 
+    irq_pin = button_irqs->pin; //保存当前中断的
+    
     tasklet_schedule(&buttons_tasklet);//调度底半部函数
+
     
     return IRQ_RETVAL(IRQ_HANDLED);
 }
 
 void buttons_do_tasklet(unsigned long arg)
 {
-    printk("%s enter..\n",__func__);
+    int buttons_value;
+    unsigned int *pins = (unsigned int *)arg;
+    
+    /* struct button_irq_desc *pCur_button = (struct button_irq_desc *)arg; */
+
+    // udelay(0);
+    buttons_value = s3c2410_gpio_getpin(*pins);
+    printk("%s: buttons-%d Pressed, value is 0x%x..\n",__func__, *pins, buttons_value);
 }
 
 static int s3c24xx_buttons_open(struct inode *inode, struct file *file)
