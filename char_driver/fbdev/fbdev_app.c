@@ -1,43 +1,7 @@
 /*
  * saFbdevDisplay.c
  *
- * This is a Fbdev sample application to show the display functionality
- * The app puts a swapping horizontal bar on the display device in various
- * shades of colors. This application runs RGB565 format with size VGA.
- *
- * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
- *
- * Author: Vaibhav Hiremath <hvaibhav@ti.com>
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *    Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- *    Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the
- *    distribution.
- *
- *    Neither the name of Texas Instruments Incorporated nor the names of
- *    its contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
-*/
+ */
 
 /*
  * Header File Inclusion
@@ -62,14 +26,14 @@
 /*
  * Default fbdev device node
  */
-static char display_dev_name[30] = {"/dev/fb1"};
+static char display_dev_name[30] = {"/dev/fb0"};
 /*
  * Color bars
  */
-#define CONFIG_TI81XX
- #if defined (CONFIG_TI81XX)
+/* #define CONFIG_TI81XX */
+#if defined (CONFIG_TI81XX)
 /*this is RGB data instead*/
- static int rgb[2][8] = {
+static int rgb[2][8] = {
     {
         (0xFF << 16) | (0xFF << 8) | (0xFF),
         (0x00 << 16) | (0x00 << 8) | (0x00),
@@ -81,49 +45,49 @@ static char display_dev_name[30] = {"/dev/fb1"};
         (0x00 << 16) | (0xFF << 8) | (0xFF),
     },
     {
-         (0x00 << 16) | (0xFF << 8) | (0xFF),
-         (0xFF << 16) | (0x00 << 8) | (0xFF),
-         (0xFF << 16) | (0xFF << 8) | (0x00),
-         (0x00 << 16) | (0x00 << 8) | (0xFF),
-         (0x00 << 16) | (0xFF << 8) | (0x00),
-         (0xFF << 16) | (0x00 << 8) | (0x00),
-         (0x00 << 16) | (0x00 << 8) | (0x00),
-         (0xFF << 16) | (0xFF << 8) | (0xFF),
+        (0x00 << 16) | (0xFF << 8) | (0xFF),
+        (0xFF << 16) | (0x00 << 8) | (0xFF),
+        (0xFF << 16) | (0xFF << 8) | (0x00),
+        (0x00 << 16) | (0x00 << 8) | (0xFF),
+        (0x00 << 16) | (0xFF << 8) | (0x00),
+        (0xFF << 16) | (0x00 << 8) | (0x00),
+        (0x00 << 16) | (0x00 << 8) | (0x00),
+        (0xFF << 16) | (0xFF << 8) | (0xFF),
     },
- };
+};
 #define VERTICAL 1
 #if VERTICAL
 void fill_color_bar(unsigned char *addr,
-                        int width,
-                        int line_len,
-                        int height,
-                        int index)
+                    int width,
+                    int line_len,
+                    int height,
+                    int index)
 {
 	int i,j,k;
 	unsigned int *start = (unsigned int*)addr;
 	if (line_len & 0xF)
-               line_len  += 16 - (line_len & 0xF);
+        line_len  += 16 - (line_len & 0xF);
 
     for(i = 0; i<height;i++){
-    for(k = 0;k < 8; k++){
-    for(j = 0; j < (line_len /32) ;j++)
-        start[j] = rgb[index][k];
-    start += line_len /32;
-}     
-}
+        for(k = 0;k < 8; k++){
+            for(j = 0; j < (line_len /32) ;j++)
+                start[j] = rgb[index][k];
+            start += line_len /32;
+        }     
+    }
 
 }
 #else
 void fill_color_bar(unsigned char *addr,
-		    int width,
-		    int line_len,
-		    int height,
-		    int index)
+                    int width,
+                    int line_len,
+                    int height,
+                    int index)
 {
 	int i,j,k;
 	unsigned int *start = (unsigned int*)addr;
 	if (line_len & 0xF)
-               line_len  += 16 - (line_len & 0xF);
+        line_len  += 16 - (line_len & 0xF);
 
 	for(i = 0 ; i < 8 ; i++) {
 		for(j = 0 ; j < (height / 8) ; j++) {
@@ -135,7 +99,7 @@ void fill_color_bar(unsigned char *addr,
 
 }
 #endif
- #else
+#else
 static short ycbcr[2][8] = {
 	{
 		(0x1F << 11) | (0x3F << 5) | (0x1F),
@@ -211,9 +175,9 @@ static int app_main(void)
 		perror("Error reading fixed information.\n");
 		goto exit1;
 	}
-        printf("\nFix Screen Info:\n");
-        printf("----------------\n");
-        printf("Line Length - %d\n", fixinfo.line_length);
+    printf("\nFix Screen Info:\n");
+    printf("----------------\n");
+    printf("Line Length - %d\n", fixinfo.line_length);
 	printf("Physical Address = %lx\n",fixinfo.smem_start);
 	printf("Buffer Length = %d\n",fixinfo.smem_len);
 
@@ -225,15 +189,15 @@ static int app_main(void)
 		perror("Error reading variable information.\n");
 		goto exit1;
 	}
-        printf("\nVar Screen Info:\n");
-        printf("----------------\n");
-        printf("Xres - %d\n", varinfo.xres);
-        printf("Yres - %d\n", varinfo.yres);
-        printf("Xres Virtual - %d\n", varinfo.xres_virtual);
-        printf("Yres Virtual - %d\n", varinfo.yres_virtual);
-        printf("Bits Per Pixel - %d\n", varinfo.bits_per_pixel);
-        printf("Pixel Clk - %d\n", varinfo.pixclock);
-        printf("Rotation - %d\n", varinfo.rotate);
+    printf("\nVar Screen Info:\n");
+    printf("----------------\n");
+    printf("Xres - %d\n", varinfo.xres);
+    printf("Yres - %d\n", varinfo.yres);
+    printf("Xres Virtual - %d\n", varinfo.xres_virtual);
+    printf("Yres Virtual - %d\n", varinfo.yres_virtual);
+    printf("Bits Per Pixel - %d\n", varinfo.bits_per_pixel);
+    printf("Pixel Clk - %d\n", varinfo.pixclock);
+    printf("Rotation - %d\n", varinfo.rotate);
 
 	memcpy(&org_varinfo, &varinfo, sizeof(varinfo));
 
@@ -261,7 +225,7 @@ static int app_main(void)
 	 * three buffers. These buffers can be displayed one by one. */
 	buffersize = fixinfo.line_length * varinfo.yres;
 	buffer_addr = (unsigned char *)mmap (0, buffersize,
-			(PROT_READ|PROT_WRITE), MAP_SHARED, display_fd, 0);
+                                         (PROT_READ|PROT_WRITE), MAP_SHARED, display_fd, 0);
 
 	if (buffer_addr == MAP_FAILED) {
 		printf("MMap failed\n");
@@ -273,19 +237,19 @@ static int app_main(void)
 	/* Color bar display loop */
 	for (i = 0 ; i < MAXLOOPCOUNT ; i) { //wxc@ 20140515
 		/* Fill the buffers with the color bars */
- #if defined (CONFIG_TI81XX)
+#if defined (CONFIG_TI81XX)
 		fill_color_bar(buffer_addr, varinfo.xres, fixinfo.line_length,
-				varinfo.yres, i%2);
+                       varinfo.yres, i%2);
 #else
 		fill_color_bar(buffer_addr, varinfo.xres, fixinfo.line_length/2,
-				varinfo.yres, i%2);
+                       varinfo.yres, i%2);
 #endif
 		sleep(1);
 	}
 	ret = 0;
 	munmap(buffer_addr, buffersize);
 
-exit1:
+ exit1:
 	close(display_fd);
 	return ret;
 }
