@@ -68,7 +68,6 @@ int __init kobj_test_init(void)
 void __exit kobj_test_exit(void)
 {
     printk("kobj_test exit.\n");
-    kobject_del(&my_kobj);
 }
      
 module_init(kobj_test_init);
